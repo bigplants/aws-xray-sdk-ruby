@@ -29,6 +29,10 @@ module XRay
         @socket.send payload, 0
       rescue StandardError => e
         logger.warn %(failed to send payload due to #{e.message})
+        entity.instance_eval { instance_variable_set(:@subsegments, nil) }
+        payload = %(#{@@protocol_header}#{@@protocol_delimiter}#{entity.to_json})
+        logger.debug %(re-sending payload(with empty subsegments) #{payload} to daemon at #{@address}.)
+        @socket.send payload, 0
       end
     end
 
